@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title data-i18n="title">Der „Principe(l)“ von Burma — Anspruch vs. Evidenz</title>
+  <meta name="description" content="Minimaler, maximal überzeugender One‑Pager: Anspruch vs. Evidenz, Stammbaum, Timeline, Score. Standalone HTML – keine externen Abhängigkeiten." />
+  <style>
+    :root{
+      --bg:#F6F4EF;        /* Elfenbein */
+      --ink:#121212;       /* Rauchschwarz */
+      --gold:#B89B4E;      /* Messing-Gold (sparsam) */
+      --blue:#223A5E;      /* Preußischblau */
+      --muted:#6B7280;     /* neutral grau */
+      --ok:#0E7C66;        /* für Checks, dezent */
+      --warn:#8B6F23;      /* für Indiz */
+      --no:#7A0019;        /* für unbelegt */
+      --radius:18px;
+      --shadow:0 8px 30px rgba(0,0,0,.06);
+      --max:1120px;
+      --fade:1; /* wird durch Toggle verändert */
+    }
+    html,body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif;letter-spacing:.2px}
+    .wrap{max-width:var(--max);margin:0 auto;padding:28px}
+    header{display:flex;align-items:center;gap:16px;border:1px solid rgba(0,0,0,.06);border-radius:var(--radius);padding:16px 18px;background:#fff;box-shadow:var(--shadow)}
+    .mark{display:flex;align-items:center;gap:10px}
+    .mark svg{width:34px;height:34px}
+    h1{font-size:clamp(22px,3.2vw,34px);margin:0}
+    .sub{color:var(--muted);font-size:14px}
+
+    /* Hero */
+    .hero{position:relative;margin:24px 0 10px;border-radius:var(--radius);padding:28px;background:linear-gradient(135deg,rgba(34,58,94,.06),rgba(184,155,78,.06));overflow:hidden}
+    .hero h2{font-size:clamp(20px,2.6vw,28px);margin:0 0 8px}
+    .hero p{margin:0;color:#2a2a2a}
+    .watermark{position:absolute;inset:auto -20px -20px auto;opacity:.07;font-weight:800;font-size:120px;line-height:1;color:var(--blue);user-select:none}
+
+    /* Controls */
+    .controls{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0;align-items:center}
+    .btn{appearance:none;border:1px solid rgba(0,0,0,.12);background:#fff;border-radius:999px;padding:10px 14px;cursor:pointer;font-weight:600;box-shadow:var(--shadow)}
+    .btn:hover{transform:translateY(-1px)}
+    .btn.small{padding:6px 10px;font-weight:700}
+    .lang{display:flex;gap:6px;align-items:center}
+    .seg{display:inline-flex;border:1px solid rgba(0,0,0,.12);border-radius:999px;overflow:hidden;box-shadow:var(--shadow)}
+    .seg button{border:0;background:#fff;padding:8px 12px;font-weight:700;cursor:pointer}
+    .seg button.active{background:var(--blue);color:#fff}
+
+    /* Grid */
+    .grid{display:grid;grid-template-columns:1fr;gap:18px}
+    @media(min-width:900px){.grid{grid-template-columns:1fr 1fr}}
+
+    .panel{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid rgba(0,0,0,.06)}
+    .panel h3{margin:0;padding:18px 18px 0;font-size:18px}
+    .panel .content{padding:12px 18px 18px}
+
+    .card{border:1px solid rgba(0,0,0,.06);border-radius:14px;padding:14px 14px 12px;background:#fff}
+    .stack{display:grid;gap:12px}
+    .row{display:flex;align-items:center;gap:10px}
+
+    /* Claim vs Evidence fade */
+    #claims{opacity:calc(0.45 + 0.55*(1 - var(--fade)));filter:saturate(calc(0.7 + 0.3*(1 - var(--fade))))}
+    #evidence{opacity:calc(0.45 + 0.55*var(--fade));filter:saturate(calc(0.7 + 0.3*var(--fade)))}
+
+    /* Badges */
+    .badge{font-size:12px;padding:4px 8px;border-radius:999px;border:1px solid currentColor;display:inline-flex;align-items:center;gap:6px;font-weight:600}
+    .b-ok{color:var(--ok);}
+    .b-warn{color:var(--warn)}
+    .b-no{color:var(--no)}
+
+    /* Evidence Score */
+    .score{display:flex;align-items:center;gap:16px;padding:16px;border:1px dashed rgba(0,0,0,.15);border-radius:14px;background:#fff}
+    .bar{position:relative;height:12px;background:rgba(0,0,0,.06);border-radius:999px;flex:1;overflow:hidden}
+    .fill{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--ok),var(--blue));width:0}
+    .score b{font-size:20px}
+
+    /* Timeline */
+    .timeline{display:grid;gap:12px}
+    .t-item{display:grid;grid-template-columns:84px 1fr;gap:10px;align-items:start}
+    .t-year{font-weight:800;color:var(--blue)}
+    .t-chip{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(0,0,0,.1);border-radius:999px;padding:6px 10px;background:#fff}
+
+    /* Genealogie */
+    .tree{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;border:1px solid rgba(0,0,0,.06)}
+    .tree svg{width:100%;height:auto}
+    .node{fill:#fff;stroke:#1f2937;stroke-width:1.2}
+    .node text{font-size:12px;fill:#111}
+    .node.dashed{stroke-dasharray:4 4;opacity:.75}
+
+    /* Article */
+    .article{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;border:1px solid rgba(0,0,0,.06)}
+    blockquote{margin:10px 0 0 0;padding:10px 14px;border-left:4px solid var(--blue);background:rgba(34,58,94,.06);border-radius:8px}
+
+    footer{margin:22px 0;color:var(--muted);font-size:12px}
+    footer a{color:inherit}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="mark" aria-hidden="true">
+        <!-- Fuchs -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8c4 0 5-4 9-4s5 4 9 4c0 6-4 12-9 12S3 14 3 8Z"/><path d="M9 13c.8-.6 1.7-1 3-1s2.2.4 3 1"/></svg>
+        <!-- Löwe -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M8 14c1.2-1 2.6-1.5 4-1.5S14.8 13 16 14"/><path d="M8 9h8M9 8v2m6-2v2"/></svg>
+      </div>
+      <div>
+        <h1 data-i18n="h1">Der „Principe(l)“ von Burma — Anspruch vs. Evidenz</h1>
+        <div class="sub" data-i18n="sub">Minimal, faktenbasiert, überzeugend. <i>Virtù</i> vs. <i>Fortuna</i> — Schein → Sein.</div>
+      </div>
+      <div class="lang" style="margin-left:auto">
+        <div class="seg" role="tablist" aria-label="Language">
+          <button id="lang-de" class="active" aria-selected="true" role="tab">DE</button>
+          <button id="lang-en" aria-selected="false" role="tab">EN</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="hero" aria-label="Überblick">
+      <h2 data-i18n="hero-title">These</h2>
+      <p data-i18n="hero-copy">Öffentliche Selbstdarstellung als „(Kron‑)Prinz von Burma“. Ziel dieses One‑Pagers: die Behauptung <b>gegen belastbare Evidenz</b> und die <b>anerkannte Konbaung‑Linie</b> zu spiegeln — kompakt, quellennah, ohne Pathos.</p>
+      <div class="watermark" aria-hidden="true">VIRTÙ · FORTUNA</div>
+    </section>
+
+    <div class="controls">
+      <button id="toggle" class="btn" title="Schein ↔ Sein umblenden" data-i18n="btn-focus">Schein ↔ Sein</button>
+      <button class="btn" onclick="window.print()" title="Als PDF drucken" data-i18n="btn-print">PDF / Druck</button>
+      <button id="copy" class="btn" title="Seiten‑URL kopieren" data-i18n="btn-copy">Teilen</button>
+      <span class="sub" style="margin-left:auto" data-i18n="badge-legend">Legende: ✔︎ Verifiziert · △ Indiz · ○ Unbelegt</span>
+    </div>
+
+    <section class="grid" aria-label="Claim vs. Evidence">
+      <div id="claims" class="panel">
+        <h3 data-i18n="claims-title">Claim</h3>
+        <div class="content stack" id="claim-cards"></div>
+      </div>
+
+      <div id="evidence" class="panel">
+        <h3 data-i18n="evidence-title">Evidence</h3>
+        <div class="content stack" id="evidence-cards"></div>
+      </div>
+    </section>
+
+    <section style="margin-top:18px" aria-label="Score & Timeline">
+      <div class="panel">
+        <div class="content" style="display:grid;gap:18px">
+          <div class="score">
+            <div>
+              <div style="font-weight:700;margin-bottom:4px" data-i18n="score-title">Evidenz‑Score</div>
+              <div style="font-size:12px;color:var(--muted)" data-i18n="score-sub">Gewichtet: verifiziert = 2, Indiz = 1, unbelegt = 0</div>
+            </div>
+            <div class="bar" aria-label="Score‑Balken"><div class="fill" id="score-fill"></div></div>
+            <b id="score-num">0%</b>
+          </div>
+
+          <div class="timeline" id="timeline"></div>
+        </div>
+      </div>
+    </section>
+
+    <section style="margin-top:18px" aria-label="Genealogie">
+      <div class="tree">
+        <div style="font-weight:700;margin-bottom:10px" data-i18n="tree-title">Vereinfachter Stammbaum — Konbaung‑Linie</div>
+        <svg viewBox="0 0 900 260" role="img" aria-label="Genealogischer Überblick">
+          <!-- Linien -->
+          <g stroke="#1f2937" stroke-width="1.2" fill="none">
+            <path d="M150 70 V110"/>
+            <path d="M150 110 H720"/>
+            <path d="M720 110 V150"/>
+            <path d="M330 110 V150"/>
+            <path d="M480 150 V190"/>
+            <path d="M720 150 V190"/>
+          </g>
+          <!-- Knoten -->
+          <g class="node">
+            <rect x="90" y="30" width="120" height="40" rx="8"/>
+            <text x="150" y="55" text-anchor="middle">König Thibaw Min</text>
+          </g>
+          <g class="node">
+            <rect x="270" y="150" width="120" height="40" rx="8"/>
+            <text x="330" y="175" text-anchor="middle">Töchter</text>
+          </g>
+          <g class="node">
+            <rect x="420" y="190" width="120" height="40" rx="8"/>
+            <text x="480" y="215" text-anchor="middle">Taw Phaya (†2019)</text>
+          </g>
+          <g class="node">
+            <rect x="660" y="190" width="120" height="40" rx="8"/>
+            <text x="720" y="215" text-anchor="middle">Soe Win</text>
+          </g>
+          <g class="node dashed">
+            <rect x="780" y="30" width="100" height="40" rx="8"/>
+            <text x="830" y="55" text-anchor="middle">„Principe(l)“</text>
+          </g>
+          <!-- Verbindung gestrichelt zur Linie (als Hinweis: kein belegter Knoten) -->
+          <g stroke="#1f2937" stroke-dasharray="6 6" fill="none">
+            <path d="M830 70 V110"/>
+          </g>
+        </svg>
+        <div style="font-size:12px;color:var(--muted)" data-i18n="tree-note">Hinweis: Öffentlich belegte Konbaung‑Nachfolge verweist auf die Linie Thibaw → Taw Phaya → Soe Win. Für „Principe(l)“ ist keine belastbare genealogische Verbindung veröffentlicht.</div>
+      </div>
+    </section>
+
+    <section style="margin-top:18px" aria-label="Quelle: Cherwell">
+      <div class="article">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <div style="font-weight:700" data-i18n="article-title">Quelle • Cherwell (Oxford) — 16. Mai 2003</div>
+          <a href="https://cherwell.org/2003/05/16/royal-pretender-to-address-union/" target="_blank" rel="noopener" class="btn small" data-i18n="article-open">Artikel öffnen</a>
+        </div>
+        <div style="margin-top:8px;color:var(--muted)" data-i18n="article-desc">Studentische Tagesberichterstattung zur Oxford Union: Einordnung des Sprechers als „Royal Pretender“ / Selbstbezeichnung „Crown Prince“ wird thematisiert.</div>
+        <blockquote>“in his native country of Myanmar, Mr Shwebomin is only a pretender to the royal throne.”</blockquote>
+        <div style="font-size:12px;color:var(--muted);margin-top:8px" data-i18n="article-note">Hinweis: Zitat ≤ 25 Wörter, gesamter Kontext siehe Original.</div>
+      </div>
+    </section>
+
+    <footer>
+      <span data-i18n="footer">Darstellung basiert auf öffentlich zugänglichen Informationen; keine rechtliche Bewertung. Begriffe wie „Pretender“, „Selbstbezeichnung“ oder Titelzuschreibungen sind kontextabhängig zu verstehen. © 2025</span>
+    </footer>
+  </div>
+
+  <script>
+    // --- Internationalisierung (DE/EN) ---
+    const I18N = {
+      de: {
+        title: 'Der „Principe(l)“ von Burma — Anspruch vs. Evidenz',
+        h1: 'Der „Principe(l)“ von Burma — Anspruch vs. Evidenz',
+        sub: 'Minimal, faktenbasiert, überzeugend. <i>Virtù</i> vs. <i>Fortuna</i> — Schein → Sein.',
+        hero-title: 'These',
+        hero-copy: 'Öffentliche Selbstdarstellung als „(Kron‑)Prinz von Burma“. Ziel dieses One‑Pagers: die Behauptung <b>gegen belastbare Evidenz</b> und die <b>anerkannte Konbaung‑Linie</b> zu spiegeln — kompakt, quellennah, ohne Pathos.',
+        btn-focus: 'Schein ↔ Sein',
+        btn-print: 'PDF / Druck',
+        btn-copy: 'Teilen',
+        badge-legend: 'Legende: ✔︎ Verifiziert · △ Indiz · ○ Unbelegt',
+        claims-title: 'Claim',
+        evidence-title: 'Evidence',
+        score-title: 'Evidenz‑Score',
+        score-sub: 'Gewichtet: verifiziert = 2, Indiz = 1, unbelegt = 0',
+        tree-title: 'Vereinfachter Stammbaum — Konbaung‑Linie',
+        tree-note: 'Hinweis: Öffentlich belegte Konbaung‑Nachfolge verweist auf die Linie Thibaw → Taw Phaya → Soe Win. Für „Principe(l)“ ist keine belastbare genealogische Verbindung veröffentlicht.',
+        article-title: 'Quelle • Cherwell (Oxford) — 16. Mai 2003',
+        article-open: 'Artikel öffnen',
+        article-desc: 'Studentische Tagesberichterstattung zur Oxford Union: Einordnung des Sprechers als „Royal Pretender“ / Selbstbezeichnung „Crown Prince“ wird thematisiert.',
+        article-note: 'Hinweis: Zitat ≤ 25 Wörter, gesamter Kontext siehe Original.',
+        footer: 'Darstellung basiert auf öffentlich zugänglichen Informationen; keine rechtliche Bewertung. Begriffe wie „Pretender“, „Selbstbezeichnung“ oder Titelzuschreibungen sind kontextabhängig zu verstehen. © 2025'
+      },
+      en: {
+        title: 'The “Principe(l)” of Burma — Claim vs. Evidence',
+        h1: 'The “Principe(l)” of Burma — Claim vs. Evidence',
+        sub: 'Minimal, evidence‑led, persuasive. <i>Virtù</i> vs. <i>Fortuna</i> — Appearance → Reality.',
+        hero-title: 'Thesis',
+        hero-copy: 'Public self‑presentation as “(Crown) Prince of Burma”. Goal: mirror the <b>claim vs. verifiable evidence</b> and the <b>accepted Konbaung line</b> — compact, source‑driven, no pathos.',
+        btn-focus: 'Appearance ↔ Reality',
+        btn-print: 'PDF / Print',
+        btn-copy: 'Share',
+        badge-legend: 'Legend: ✔︎ Verified · △ Indicium · ○ Unsubstantiated',
+        claims-title: 'Claim',
+        evidence-title: 'Evidence',
+        score-title: 'Evidence Score',
+        score-sub: 'Weighted: verified = 2, indicium = 1, unsubstantiated = 0',
+        tree-title: 'Simplified Family Tree — Konbaung Line',
+        tree-note: 'Note: Publicly documented Konbaung succession points Thibaw → Taw Phaya → Soe Win. No published, robust genealogy links “Principe(l)”.',
+        article-title: 'Source • Cherwell (Oxford) — 16 May 2003',
+        article-open: 'Open article',
+        article-desc: 'Student reporting on the Oxford Union: speaker framed as “Royal Pretender”; self‑description “Crown Prince” discussed.',
+        article-note: 'Note: Quote ≤ 25 words; see original for full context.',
+        footer: 'This page uses publicly available information; not a legal assessment. Terms like “pretender” and self‑titles are context‑dependent. © 2025'
+      }
+    };
+
+    function applyI18n(lang){
+      const dict = I18N[lang] || I18N.de;
+      document.querySelectorAll('[data-i18n]').forEach(el=>{
+        const key = el.getAttribute('data-i18n');
+        if(dict[key]!==undefined){ el.innerHTML = dict[key]; }
+      });
+      document.documentElement.lang = lang === 'en' ? 'en' : 'de';
+      // toggle active buttons
+      document.getElementById('lang-de').classList.toggle('active', lang==='de');
+      document.getElementById('lang-en').classList.toggle('active', lang==='en');
+    }
+
+    document.getElementById('lang-de').addEventListener('click',()=>applyI18n('de'));
+    document.getElementById('lang-en').addEventListener('click',()=>applyI18n('en'));
+
+    // --- Daten (zweisprachig) ---
+    const DATA = {
+      de: {
+        claims: [
+          {t:'Selbstbezeichnung als „(Kron‑)Prinz“ / „HRH“', d:'Regelmäßige Verwendung von royalen Titeln in Auftritten & Selbstdarstellung.'},
+          {t:'Zeremonielle Uniform bei Gesellschaftsevents', d:'Präsenz in höfisch anmutenden Outfits, Foto‑Ops, Ehrengäste‑Kontext.'},
+          {t:'Schirmherr/Patron einer „Royal Burma“‑Organisation', d:'Vereins‑/Society‑Anmutung zur Legitimationssteigerung.'},
+          {t:'Mediale Vorstellung als „Crown Prince“', d:'Einladungen/Anmoderationen übernehmen die Selbstbeschreibung.'}
+        ],
+        evidence: [
+          {t:'UK‑Registereinträge (Companies House)', d:'Auflistung als Director; Nationalität britisch.', badge:'ok'},
+          {t:'Oxford‑Einordnung (öffentl. Debatte)', d:'Bezeichnung als „Royal Pretender“.', badge:'ok'},
+          {t:'Event‑Bericht (Iffezheim)', d:'Nennung als „Kronprinz“ ohne Herkunftsbeleg.', badge:'warn'},
+          {t:'Konbaung‑Linie (familienintern)', d:'Anerkannte Nachfahrenlinie verweist auf Soe Win.', badge:'ok'},
+          {t:'Genealogie‑Beleg zu „Principe(l)“', d:'Keine belastbaren, veröffentlichten Nachweise.', badge:'no'},
+          {t:'Alias „Principell“ dokumentiert?', d:'Öffentlich nicht verifizierbar.', badge:'no'}
+        ],
+        timeline: [
+          {y:2003, t:'Oxford‑Auftritt / Debatte', k:'Einordnung als „Royal Pretender“'},
+          {y:2011, t:'UK‑Register‑Einträge', k:'Mehrere Director‑Records'},
+          {y:2014, t:'Deutschland‑Event (Rennbahn)', k:'Vorstellung als „Kronprinz …“'},
+          {y:2016, t:'Öffentliche Online‑Selbstdarstellung', k:'Patron/FB‑Seite/Organisation'}
+        ]
+      },
+      en: {
+        claims: [
+          {t:'Self‑styled “(Crown) Prince” / “HRH”', d:'Regular use of royal titles in appearances & self‑branding.'},
+          {t:'Ceremonial uniform at society events', d:'Courtly‑looking outfits, photo‑ops, guest‑of‑honour framing.'},
+          {t:'Patron of a “Royal Burma” organisation', d:'Society/association framing to boost perceived legitimacy.'},
+          {t:'Media intros as “Crown Prince”', d:'Invites/announcers reproduce the self‑description.'}
+        ],
+        evidence: [
+          {t:'UK registries (Companies House)', d:'Listed as company director; nationality British.', badge:'ok'},
+          {t:'Oxford framing (public debate)', d:'Described as “Royal Pretender”.', badge:'ok'},
+          {t:'Event report (Iffezheim, Germany)', d:'Labelled “Crown Prince” without lineage proof.', badge:'warn'},
+          {t:'Konbaung line (family‑internal)', d:'Accepted descendant line points to Soe Win.', badge:'ok'},
+          {t:'Genealogy for “Principe(l)”', d:'No robust, published evidence.', badge:'no'},
+          {t:'Alias “Principell” documented?', d:'Not publicly verifiable.', badge:'no'}
+        ],
+        timeline: [
+          {y:2003, t:'Oxford talk / debate', k:'Described as “Royal Pretender”'},
+          {y:2011, t:'UK registry entries', k:'Multiple director records'},
+          {y:2014, t:'German event (racecourse)', k:'Introduced as “Crown Prince …”'},
+          {y:2016, t:'Ongoing online self‑presentation', k:'Patron/FB page/organisation'}
+        ]
+      }
+    };
+
+    // Render function using current language
+    function renderAll(lang){
+      // clear
+      document.getElementById('claim-cards').innerHTML='';
+      document.getElementById('evidence-cards').innerHTML='';
+      document.getElementById('timeline').innerHTML='';
+
+      const claims = DATA[lang].claims;
+      const evidence = DATA[lang].evidence;
+      const timeline = DATA[lang].timeline;
+
+      // Claims
+      const $claims = document.getElementById('claim-cards');
+      claims.forEach(c=>{
+        const el = document.createElement('div');
+        el.className='card';
+        el.innerHTML = `<div class="row"><strong>${c.t}</strong></div><div style="color:var(--muted);font-size:13px">${c.d}</div>`;
+        $claims.appendChild(el);
+      });
+
+      // Evidence
+      const $ev = document.getElementById('evidence-cards');
+      const weights = {ok:2, warn:1, no:0};
+      let sum=0, max=evidence.length*2;
+
+      evidence.forEach(e=>{
+        sum+=weights[e.badge];
+        const el=document.createElement('div');
+        el.className='card';
+        const cls = e.badge==='ok'?'b-ok':(e.badge==='warn'?'b-warn':'b-no');
+        const label = lang==='de' ? (e.badge==='ok'?'Verifiziert':(e.badge==='warn'?'Indiz':'Unbelegt')) : (e.badge==='ok'?'Verified':(e.badge==='warn'?'Indicium':'Unsubstantiated'));
+        el.innerHTML = `
+          <div class="row" style="justify-content:space-between">
+            <strong>${e.t}</strong>
+            <span class="badge ${cls}">${badgeIcon(e.badge)} ${label}</span>
+          </div>
+          <div style="color:var(--muted);font-size:13px;margin-top:6px">${e.d}</div>`;
+        $ev.appendChild(el);
+      });
+
+      // Score
+      const pct = Math.round(100*sum/max);
+      document.getElementById('score-num').textContent = pct+"%";
+      requestAnimationFrame(()=>{
+        document.getElementById('score-fill').style.width=pct+'%';
+      });
+
+      // Timeline
+      const $tl=document.getElementById('timeline');
+      timeline.forEach(i=>{
+        const el=document.createElement('div');
+        el.className='t-item card';
+        el.innerHTML = `
+          <div class="t-year">${i.y}</div>
+          <div>
+            <div style="font-weight:700">${i.t}</div>
+            <div style="margin-top:6px"><span class="t-chip">${chipIcon()} ${i.k}</span></div>
+          </div>`;
+        $tl.appendChild(el);
+      });
+    }
+
+    // Initial language & render
+    let LANG = 'de';
+    applyI18n(LANG);
+    renderAll(LANG);
+
+    // Language switch
+    document.getElementById('lang-de').addEventListener('click',()=>{LANG='de'; applyI18n(LANG); renderAll(LANG)});
+    document.getElementById('lang-en').addEventListener('click',()=>{LANG='en'; applyI18n(LANG); renderAll(LANG)});
+
+    // --- UI helpers (unchanged) ---
+    const btn=document.getElementById('toggle');
+    let flip=true; setFade(flip);
+    btn.addEventListener('click',()=>{flip=!flip; setFade(flip);});
+    function setFade(on){
+      document.documentElement.style.setProperty('--fade', on?1:0);
+      btn.textContent = on? (LANG==='de'?'Sein (Evidence) im Fokus':'Reality (Evidence) focus') : (LANG==='de'?'Schein (Claim) im Fokus':'Appearance (Claim) focus');
+    }
+
+    document.getElementById('copy').addEventListener('click', async()=>{
+      try{await navigator.clipboard.writeText(location.href);flash(LANG==='de'?'URL kopiert':'URL copied');}catch{flash(LANG==='de'?'Konnte nicht kopieren':'Copy failed');}
+    });
+
+    function flash(msg){
+      const n=document.createElement('div');
+      n.textContent=msg; n.style.position='fixed'; n.style.right='20px'; n.style.bottom='20px'; n.style.padding='10px 12px'; n.style.background='#fff'; n.style.border='1px solid rgba(0,0,0,.12)'; n.style.borderRadius='10px'; n.style.boxShadow='var(--shadow)'; n.style.zIndex=9999; n.style.fontWeight='700';
+      document.body.appendChild(n); setTimeout(()=>n.remove(),1600);
+    }
+
+    function badgeIcon(kind){
+      if(kind==='ok') return svg(`<path d='M20 6 9 17l-5-5'/>`);
+      if(kind==='warn') return svg(`<path d='M12 9v4m0 4h.01'/><path d='m10.29 3.86-8 13.85A2 2 0 0 0 4 21h16a2 2 0 0 0 1.71-3.29l-8-13.85a2 2 0 0 0-3.42 0z'/>`);
+      return svg(`<path d='M12 9v4m0 4h.01'/><circle cx='12' cy='12' r='9'/>`);
+    }
+    function chipIcon(){
+      return svg(`<circle cx='12' cy='12' r='9'/><path d='M8 14c1.2-1 2.6-1.5 4-1.5S14.8 13 16 14'/><path d='M8 9h8M9 8v2m6-2v2'/>`);
+    }
+    function svg(d){
+      return `<svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>${d}</svg>`
+    }
+  </script>
+</body>
+</html>
